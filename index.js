@@ -129,7 +129,7 @@ app.post('/generate-recipe', async (req, res) => {
 		});
 		res.status(200).json({ recipe: response.choices[0].message.content });
 	} catch (err) {
-		console.error(err.message);
+		console.error('Error with Hugging Face API:', err);
 		res.status(500).json({ error: 'Failed to generate recipe' });
 	}
 });
