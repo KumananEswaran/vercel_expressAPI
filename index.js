@@ -117,7 +117,7 @@ app.put('/recipes/:id', async (req, res) => {
 		req.body;
 	try {
 		await pool.query(
-			'UPDATE recipes SET title=$1, description=$2, ingredients=$3, directions=$4, image_url=$5 tags=$6 WHERE id=$7',
+			'UPDATE recipes SET title=$1, description=$2, ingredients=$3, directions=$4, image_url=$5, tags=$6 WHERE id=$7',
 			[
 				title,
 				description,
