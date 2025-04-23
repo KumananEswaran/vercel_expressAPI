@@ -39,13 +39,20 @@ app.post('/api/register', async (req, res) => {
 
 // To submit a recipe
 app.post('/recipes', async (req, res) => {
-	const { title, description, ingredients, directions, imageUrl, user_uid } =
-		req.body;
+	const {
+		title,
+		description,
+		ingredients,
+		directions,
+		imageUrl,
+		user_uid,
+		tags,
+	} = req.body;
 
 	try {
 		await pool.query(
-			'INSERT INTO recipes (title, description, ingredients, directions, image_url, user_uid) VALUES ($1, $2, $3, $4, $5, $6)',
-			[title, description, ingredients, directions, imageUrl, user_uid]
+			'INSERT INTO recipes (title, description, ingredients, directions, image_url, user_uid, tags) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+			[title, description, ingredients, directions, imageUrl, user_uid, tags]
 		);
 		res.status(201).json({ message: 'Recipe added successfully' });
 	} catch (error) {
@@ -64,6 +71,26 @@ app.get('/recipes', async (req, res) => {
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ error: 'Failed to fetch recipes' });
+	}
+});
+
+// Filter recipes by tags
+app.get('/recipes/filter', async (req, res) => {
+	const { tags } = req.query;
+
+	if (!tags) return res.status(400).json({ error: 'Tags are required' });
+
+	const tagArray = tags.split(',');
+
+	try {
+		const result = await pool.query(
+			`SELECT * FROM recipes WHERE tags @> $!::text[]`,
+			[tagArray]
+		);
+		res.json(result.rows);
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ error: 'Failed to filter recipes by tags' });
 	}
 });
 
@@ -86,11 +113,20 @@ app.get('/recipes/:id', async (req, res) => {
 
 // To update recipe
 app.put('/recipes/:id', async (req, res) => {
-	const { title, description, ingredients, directions, image_url } = req.body;
+	const { title, description, ingredients, directions, image_url, tags } =
+		req.body;
 	try {
 		await pool.query(
-			'UPDATE recipes SET title=$1, description=$2, ingredients=$3, directions=$4, image_url=$5 WHERE id=$6',
-			[title, description, ingredients, directions, image_url, req.params.id]
+			'UPDATE recipes SET title=$1, description=$2, ingredients=$3, directions=$4, image_url=$5 tags=$6 WHERE id=$7',
+			[
+				title,
+				description,
+				ingredients,
+				directions,
+				image_url,
+				tags,
+				req.params.id,
+			]
 		);
 		res.sendStatus(200);
 	} catch (error) {
