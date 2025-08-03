@@ -165,14 +165,16 @@ app.post('/generate-recipe', async (req, res) => {
 		// 	max_tokens: 1024,
 		// });
 		const response = await hf.textGeneration({
-			model: 'bigscience/bloom-560m',
+			model: 'gpt2',
 			inputs: `${SYSTEM_PROMPT}\nI have ${ingredientsString}. Please give me a recipe you'd recommend I make!`,
 			parameters: {
 				max_new_tokens: 250,
 				temperature: 0.7,
 			},
 		});
-		res.status(200).json({ recipe: response.choices[0].message.content });
+		res.status(200).json({ recipe: response.generated_text });
+
+		// res.status(200).json({ recipe: response.choices[0].message.content });
 	} catch (err) {
 		console.error('Error with Hugging Face API:', err);
 		res.status(500).json({ error: 'Failed to generate recipe' });
