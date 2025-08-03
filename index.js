@@ -152,17 +152,25 @@ app.post('/generate-recipe', async (req, res) => {
 	const ingredientsString = ingredientsArr.join(', ');
 
 	try {
-		const response = await hf.chatCompletion({
-			// model: 'mistralai/Mixtral-8x7B-Instruct-v0.1',
-			model: 'HuggingFaceH4/zephyr-7b-beta',
-			messages: [
-				{ role: 'system', content: SYSTEM_PROMPT },
-				{
-					role: 'user',
-					content: `I have ${ingredientsString}. Please give me a recipe you'd recommend I make!`,
-				},
-			],
-			max_tokens: 1024,
+		// const response = await hf.chatCompletion({
+		// 	// model: 'mistralai/Mixtral-8x7B-Instruct-v0.1',
+		// 	model: 'HuggingFaceH4/zephyr-7b-beta',
+		// 	messages: [
+		// 		{ role: 'system', content: SYSTEM_PROMPT },
+		// 		{
+		// 			role: 'user',
+		// 			content: `I have ${ingredientsString}. Please give me a recipe you'd recommend I make!`,
+		// 		},
+		// 	],
+		// 	max_tokens: 1024,
+		// });
+		const response = await hf.textGeneration({
+			model: 'bigscience/bloom-560m',
+			inputs: `${SYSTEM_PROMPT}\nI have ${ingredientsString}. Please give me a recipe you'd recommend I make!`,
+			parameters: {
+				max_new_tokens: 250,
+				temperature: 0.7,
+			},
 		});
 		res.status(200).json({ recipe: response.choices[0].message.content });
 	} catch (err) {
